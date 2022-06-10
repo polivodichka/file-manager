@@ -46,6 +46,36 @@
                           rl.prompt();
                       })
                   break;
+              case 'cat':
+                  await basic.read(currentDirectory, comandContent, rl);
+                  break;
+              case 'add':
+                  await basic.create(currentDirectory, comandContent, rl);
+                  break;
+              case 'rn':
+                  await basic.rename(
+                      currentDirectory,
+                      comandContent,
+                      rl
+                  );
+                  break;
+              case 'cp':
+                  await basic.copy(
+                      splitPaths(currentDirectory, comandContent),
+                      rl
+                  );
+                  break;
+
+              case 'mv':
+                  await basic.move(
+                      splitPaths(currentDirectory, comandContent),
+                      rl
+                  );
+                  break;
+
+              case 'rm':
+                  await basic.remove(currentDirectory, comandContent, rl);
+                  break;
 
               default:
                   await console.log('Invalid input');
