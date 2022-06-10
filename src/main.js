@@ -9,13 +9,13 @@
       input,
       output
   });
-  import os from 'os';
   import * as basic from './basicOperations.js'
   import * as nwd from './nwd.js'
+  import * as operating from './operatingSystem.js'
 
   const main = () => {
       const USER = process.argv[process.argv.indexOf('--user-name') + 1];
-      let currentDirectory = String(os.homedir);
+      let currentDirectory = operating.getHomeDir();
 
       if (!process.argv.includes('--user-name')) {
           console.log("'--user-name' shuld be exist");
@@ -46,12 +46,15 @@
                           rl.prompt();
                       })
                   break;
+
               case 'cat':
                   await basic.read(currentDirectory, comandContent, rl);
                   break;
+
               case 'add':
                   await basic.create(currentDirectory, comandContent, rl);
                   break;
+
               case 'rn':
                   await basic.rename(
                       currentDirectory,
@@ -59,6 +62,7 @@
                       rl
                   );
                   break;
+                  
               case 'cp':
                   await basic.copy(
                       splitPaths(currentDirectory, comandContent),
@@ -77,8 +81,34 @@
                   await basic.remove(currentDirectory, comandContent, rl);
                   break;
 
+              case 'os':
+                  switch (comandContent) {
+                      case '--EOL':
+                          console.log(operating.getOsInfo());
+                          break;
+                      case '--cpus':
+                          console.log(operating.getCpus());
+                          break;
+                      case '--homedir':
+                          console.log(operating.getHomeDir());
+                          break;
+                      case '--username':
+                          console.log(operating.getUserName());
+                          break;
+                      case '--architecture':
+                          console.log(operating.getArchitecture());
+                          break;
+                      default:
+                          console.log('Invalid input');
+                          rl.prompt();
+                          break;
+
+                  }
+                  rl.prompt();
+                  break;
+
               default:
-                  await console.log('Invalid input');
+                  console.log('Invalid input');
                   rl.prompt();
                   break;
           }
