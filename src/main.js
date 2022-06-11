@@ -12,6 +12,7 @@
   import * as basic from './basicOperations.js'
   import * as nwd from './nwd.js'
   import * as operating from './operatingSystem.js'
+  import crypto from 'crypto';
 
   const main = () => {
       const USER = process.argv[process.argv.indexOf('--user-name') + 1];
@@ -62,7 +63,7 @@
                       rl
                   );
                   break;
-                  
+
               case 'cp':
                   await basic.copy(
                       splitPaths(currentDirectory, comandContent),
@@ -106,7 +107,18 @@
                   }
                   rl.prompt();
                   break;
-
+              case 'hash':
+                  fs.readFile(path.resolve(currentDirectory, comandContent), (error, fileBuffer) => {
+                      if (error) {
+                          console.log('Invalid input');
+                      } else {
+                          console.log(crypto.createHash('sha256').update(fileBuffer).digest('hex'));
+                      }
+                      rl.prompt();
+                  });
+                  break;
+              case '.exit':
+                  process.exit(1);
               default:
                   console.log('Invalid input');
                   rl.prompt();
@@ -115,7 +127,7 @@
       });
 
       process.on('exit', (code) => {
-          console.log(`${code === 0 ? '\n' : ''}Great! See you later :)`);
+          console.log(`${code === 0 ? '\n' : ''}Thank you for using File Manager, ${USER}!`);
       });
 
   };
