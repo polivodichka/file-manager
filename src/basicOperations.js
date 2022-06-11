@@ -1,101 +1,72 @@
-import fs, { copyFile } from 'fs';
+import fs from 'fs';
 import fsPromises from 'fs/promises';
 import path from 'path';
-import {
-    exit
-} from 'process';
+import { pipeline } from 'stream';
+import { throwOperationFailed } from './errors.js';
 
 export const read = async (currentPath, toRead, readline) => {
     const stream = fs.ReadStream(path.resolve(currentPath, toRead), 'utf8');
-    stream.on('error', () => {
-        try {
-            throw new Error('File exist!')
-        } catch (error) {
-            console.log(error.message)
-        }
-    })
-    stream.on('data', data => process.stdout.write(data));
 
-    stream.on('close', () => {
-        readline.prompt()
-    })
+    stream.on('error', () => throwOperationFailed('No such file in this directory!'));
+    stream.on('data', data => process.stdout.write(data));
+    stream.on('close', () => readline.prompt());
 };
 
 export const create = async (currentPath, name, readline) => {
     let freshPath = path.resolve(currentPath, name);
-    try {
-        await fsPromises.writeFile(freshPath, '', {
-            flag: 'wx'
-        });
-    } catch {
-        try {
-            throw new Error('File exist!')
-        } catch (error) {
-            console.log(error.message)
-        }
-    }
-    readline.prompt();
+
+    fs.writeFile(freshPath, '', { flag: 'wx' }, (err) => {
+        if (err) throwOperationFailed('File already exists!')
+        readline.prompt();
+    });
 };
 
-export const rename = async (currentPath, names, readline) => {
+export const rename = async ([oldPath, newPath], readline) => {
 
-    names = names.split(' ');
-    let oldName, newName, tempName = [];
-    names.forEach(chunk => {
-        tempName.push(chunk);
-        if (fs.existsSync(path.resolve(currentPath, tempName.join(' '))))
-            [oldName, tempName] = [tempName.join(' '), []];
-    });
-    newName = tempName.join(' ');
-
-    let [oldPath, newPath] = [path.resolve(currentPath, oldName), path.resolve(currentPath, newName)];
-    try{
+    try {
         await fsPromises.rename(oldPath, newPath);
-    }catch {
-        try {
-            throw new Error('No such file in this directory!')
-        } catch (error) {
-            console.log(error.message)
-        }
+    } catch {
+        throwOperationFailed('No such file in this directiry!')
     }
-    
+
     readline.prompt();
 };
 
 export const copy = async ([src, dest], readline) => {
 
-    if(!fs.existsSync(dest)){
+    if (!src) {
+        throwOperationFailed('No such file!');
+        if (readline) readline.prompt();
+        return;
+    }
+    else if (!fs.existsSync(dest)) {
         await fs.promises.mkdir(dest);
     }
-    try{
-        await fsPromises.copyFile(src, path.resolve(dest, path.basename(src)), 2);
-    }catch {
-        try {
-            throw new Error('Error!')
-        } catch (error) {
-            console.log(error.message)
-        }
-    }
-    
+
+    const readableStream = fs.ReadStream(src, 'utf8');
+    const writableStream = fs.WriteStream(path.resolve(dest, path.basename(src)));
+
+    readableStream.on('error', () => throwOperationFailed());
+    readableStream.on('error', () => throwOperationFailed());
+
+    readableStream.pipe(writableStream);
+
     if (readline) readline.prompt();
+    else return true;
 };
 
 export const move = async ([src, dest], readline) => {
-    copy([src, dest], false).then(async ()=>{
-        fs.promises.rm(src)
-        .then(readline.prompt());
-    })
+    copy([src, dest], false).then(data => {
+        if (data) remove(src, false); 
+        readline.prompt();
+    });
 };
 
-export const remove = async (currentPath, pathToFile, readline) => {
-    fs.rm(path.resolve(currentPath, pathToFile), (error)=>{
-        if (error){
-            try {
-                throw new Error('Error!')
-            } catch (error) {
-                console.log(error.message)
-            }
+export const remove = async (src, readline) => {
+    fs.rm(src, (error) => {
+        if (error) {
+            throwOperationFailed('No such file!')
         }
-        readline.prompt();
+        if (readline) readline.prompt();
     })
 };
