@@ -6,8 +6,13 @@ export const up = (currentPath) => {
     return path.resolve(currentPath, '..')
 }
 export const cd = (currentPath, additional) => {
-    return fs.existsSync(path.resolve(currentPath, additional))?path.resolve(currentPath, additional):currentPath;
+    const newPath = path.resolve(currentPath, additional);
+    return fs.existsSync(newPath) && list(newPath) ? newPath : currentPath;
 }
 export const list = async (folder, readline) => {
-    return fs.promises.readdir(folder);
+    return fs.readdir(folder, (err) => {
+        if (err) {
+            return false;
+        }
+    });
 }
