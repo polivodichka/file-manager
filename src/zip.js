@@ -4,11 +4,12 @@ import zlib from 'zlib';
 import { throwOperationFailed } from './errors.js';
 
 export const compress = ([toRead, toWrite]) => {
-    console.log(toRead, fs.existsSync(toWrite))
-    if (toRead && !fs.existsSync(toWrite)) {
+
+    if (toRead && fs.lstatSync(toRead).isFile() && !fs.existsSync(toWrite)) {
         fs.mkdirSync(toWrite, () => { })
     }
-    if (!(toRead && fs.existsSync(toWrite))) {
+
+    if (!(toRead && fs.lstatSync(toRead).isFile() && fs.existsSync(toWrite))) {
         throwOperationFailed('No such file in this derictory!');
         return;
     }
@@ -21,7 +22,12 @@ export const compress = ([toRead, toWrite]) => {
 };
 
 export const decompress = ([toRead, toWrite]) => {
-    if (!(toRead && fs.existsSync(toWrite))) {
+
+    if (toRead && fs.lstatSync(toRead).isFile() && !fs.existsSync(toWrite)) {
+        fs.mkdirSync(toWrite, () => { })
+    }
+
+    if (!(toRead && fs.lstatSync(toRead).isFile() && fs.existsSync(toWrite))) {
         throwOperationFailed('No such file in this derictory!');
         return;
     }
