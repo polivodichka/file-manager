@@ -22,7 +22,7 @@ const main = () => {
     if (!process.argv.includes('--user-name')) {
         console.log("'--user-name' shuld be exist");
         process.exit(0);
-    } else console.log(`Welcome to the File Manager, ${USER}!`);
+    } else console.log(`\x1b[35mWelcome to the File Manager, ${USER}!\n\x1b[0m`);
 
     rl.setPrompt(`\x1b[36mYou are currently in ${currentDirectory} >\n\x1b[0m`);
     rl.prompt();
@@ -42,9 +42,9 @@ const main = () => {
                 break;
 
             case 'ls':
-                nwd.list(currentDirectory, rl)
+                nwd.list(currentDirectory)
                     .then(list => {
-                        console.log(list.join('\n'));
+                        console.table(list);
                         rl.prompt();
                     })
                 break;
@@ -62,17 +62,11 @@ const main = () => {
                 break;
 
             case 'cp':
-                await basic.copy(
-                    splitPaths(currentDirectory, comandContent),
-                    rl
-                );
+                await basic.copy(splitPaths(currentDirectory, comandContent), rl);
                 break;
 
             case 'mv':
-                await basic.move(
-                    splitPaths(currentDirectory, comandContent),
-                    rl
-                );
+                await basic.move(splitPaths(currentDirectory, comandContent), rl);
                 break;
 
             case 'rm':
@@ -115,7 +109,7 @@ const main = () => {
                 rl.prompt();
                 break;
             case '.exit':
-                process.exit(1);
+                process.exit();
             default:
                 throwInvalidInput();
                 rl.prompt();
@@ -124,7 +118,7 @@ const main = () => {
     });
 
     process.on('exit', (code) => {
-        console.log(`${code === 0 ? '\n' : ''}Thank you for using File Manager, ${USER}!`);
+        console.log(`\x1b[35m\nThank you for using File Manager, ${USER}!\n\x1b[0m`);
     });
 
 };
