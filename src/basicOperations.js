@@ -26,7 +26,7 @@ export const rename = async ([oldPath, newPath], readline) => {
     try {
         await fsPromises.rename(oldPath, newPath);
     } catch {
-        throwOperationFailed('No such file in this directiry!')
+        throwOperationFailed('No such file in this derictory!')
     }
 
     readline.prompt();
@@ -35,7 +35,7 @@ export const rename = async ([oldPath, newPath], readline) => {
 export const copy = async ([src, dest], readline) => {
 
     if (!src) {
-        throwOperationFailed('No such file!');
+        throwOperationFailed('No such file in this derictory!');
         if (readline) readline.prompt();
         return;
     }
@@ -65,7 +65,7 @@ export const move = async ([src, dest], readline) => {
 export const remove = async (src, readline) => {
     fs.rm(src, (error) => {
         if (error) {
-            throwOperationFailed('No such file!')
+            throwOperationFailed('No such file in this derictory!')
         }
         if (readline) readline.prompt();
     })
