@@ -15,5 +15,5 @@ export const cd = (currentPath, additional) => {
 }
 
 export const list = async (folder) => {
-    return fs.promises.readdir(folder);
+    return fs.promises.readdir(folder, { withFileTypes: true });
 }

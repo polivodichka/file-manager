@@ -16,11 +16,13 @@ const rl = readline.createInterface({
 });
 
 const main = () => {
-    const USER = process.argv[process.argv.indexOf('--user-name') + 1];
+    const USER = process.argv
+        .find(arg => arg.match(/--username\w*/)).split('=')[1] ?? null;
     let currentDirectory = operating.getHomeDir();
 
-    if (!process.argv.includes('--user-name')) {
-        console.log("'--user-name' shuld be exist");
+    if (!USER) {
+        console.log(process.argv);
+        console.log("'--username' shuld be exist");
         process.exit(0);
     } else console.log(`\x1b[35mWelcome to the File Manager, ${USER}!\n\x1b[0m`);
 
@@ -44,6 +46,7 @@ const main = () => {
             case 'ls':
                 nwd.list(currentDirectory)
                     .then(list => {
+                        list = list.map(elem => { return { Name: elem.isFile() ? path.parse(elem.name).name : elem.name, Type: elem.isFile() ? 'file' : 'directory' } })
                         console.table(list);
                         rl.prompt();
                     })
