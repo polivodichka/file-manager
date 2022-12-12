@@ -16,12 +16,12 @@ const rl = readline.createInterface({
 });
 
 const main = () => {
-    const USER = process.argv
-        .find(arg => arg.match(/--username\w*/)).split('=')[1] ?? null;
+    const nameArg = process.argv
+    .find(arg => arg.match(/--username\w*/));
+    const USER = nameArg ? nameArg.split('=')[1] : null;
     let currentDirectory = operating.getHomeDir();
 
     if (!USER) {
-        console.log(process.argv);
         console.log("'--username' shuld be exist");
         process.exit(0);
     } else console.log(`\x1b[35mWelcome to the File Manager, ${USER}!\n\x1b[0m`);
