@@ -17,7 +17,7 @@ const rl = readline.createInterface({
 
 const main = () => {
     const nameArg = process.argv
-    .find(arg => arg.match(/--username\w*/));
+        .find(arg => arg.match(/--username\w*/));
     const USER = nameArg ? nameArg.split('=')[1] : null;
     let currentDirectory = operating.getHomeDir();
 
@@ -46,7 +46,10 @@ const main = () => {
             case 'ls':
                 nwd.list(currentDirectory)
                     .then(list => {
-                        list = list.map(elem => { return { Name: elem.isFile() ? path.parse(elem.name).name : elem.name, Type: elem.isFile() ? 'file' : 'directory' } })
+                        list = list.map(elem => 
+                            { return { Name: elem.name, Type: elem.isFile() ? 'file' : elem.isDirectory() ? 'directory' : '' } })
+                            .sort((a, b) => a.Type.localeCompare(b.Type))
+                            .filter(el => el.Type !== '')
                         console.table(list);
                         rl.prompt();
                     })

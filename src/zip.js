@@ -26,9 +26,12 @@ export const decompress = ([toRead, toWrite]) => {
     if (toRead && fs.lstatSync(toRead).isFile() && !fs.existsSync(toWrite)) {
         fs.mkdirSync(toWrite, () => { })
     }
-
-    if (!(toRead && fs.lstatSync(toRead).isFile() && fs.existsSync(toWrite))) {
+    else if (!(toRead && fs.lstatSync(toRead).isFile() && fs.existsSync(toWrite))) {
         throwOperationFailed('No such file in this derictory!');
+        return;
+    }
+    else if(path.extname(toRead) !== '.br'){
+        throwOperationFailed('Invalid extesion!');
         return;
     }
     const input = fs.createReadStream(toRead);
