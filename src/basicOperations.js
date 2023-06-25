@@ -1,6 +1,7 @@
-import fs from 'fs';
 import fsPromises from 'fs/promises';
 import path from 'path';
+import fs from 'fs';
+
 import { throwOperationFailed } from './errors.js';
 
 export const read = async (currentPath, toRead, readline) => {
@@ -37,6 +38,11 @@ export const copy = async ([src, dest], readline) => {
         if (readline) readline.prompt();
         return;
     }
+    else if (!fs.lstatSync(src).isFile()){
+        throwOperationFailed('You are trying to copy a folder!');
+        if (readline) readline.prompt();
+        return;
+    }
     else if (!fs.existsSync(dest) || fs.lstatSync(dest).isFile()) {
         try {
             await fs.promises.mkdir(dest);
@@ -67,7 +73,13 @@ export const copy = async ([src, dest], readline) => {
 };
 
 export const move = async ([src, dest], readline) => {
-    if (!fs.existsSync(path.resolve(dest, path.basename(src))))
+    
+    if (!fs.lstatSync(src).isFile()){
+        throwOperationFailed('You are trying to move a folder!');
+        if (readline) readline.prompt();
+        return;
+    }
+    else if (!fs.existsSync(path.resolve(dest, path.basename(src))))
         copy([src, dest], false).then(data => {
             if (data) remove(src, false);
             readline.prompt();
